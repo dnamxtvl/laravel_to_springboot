@@ -1,0 +1,130 @@
+package com.example.hello_sring_boot.controller;
+
+import com.example.hello_sring_boot.dto.request.CreateUserRequest;
+import com.example.hello_sring_boot.dto.request.UpdateUserRequest;
+import com.example.hello_sring_boot.dto.response.UserResponse;
+import com.example.hello_sring_boot.service.UserService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/api/v1/users")
+@RequiredArgsConstructor
+public class UserController {
+
+    private final UserService userService;
+
+    // Create user
+    @PostMapping
+    public ResponseEntity<UserResponse> createUser(@Valid @RequestBody CreateUserRequest request) {
+        UserResponse response = userService.createUser(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    // Get user by ID
+    @GetMapping("/{id}")
+    public ResponseEntity<UserResponse> getUserById(@PathVariable UUID id) {
+        UserResponse response = userService.getUserById(id);
+        return ResponseEntity.ok(response);
+    }
+
+    // Get all users with pagination
+    @GetMapping
+    public ResponseEntity<Page<UserResponse>> getAllUsers(
+            @PageableDefault(size = 20) Pageable pageable) {
+        Page<UserResponse> users = userService.getAllUsers(pageable);
+        return ResponseEntity.ok(users);
+    }
+
+    // Update user
+    @PutMapping("/{id}")
+    public ResponseEntity<UserResponse> updateUser(
+            @PathVariable UUID id,
+            @Valid @RequestBody UpdateUserRequest request) {
+        UserResponse response = userService.updateUser(id, request);
+        return ResponseEntity.ok(response);
+    }
+
+    // Delete user (soft delete)
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // Hard delete user
+    @DeleteMapping("/{id}/hard")
+    public ResponseEntity<Void> hardDeleteUser(@PathVariable UUID id) {
+        userService.hardDeleteUser(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // Search users
+    @GetMapping("/search")
+    public ResponseEntity<List<UserResponse>> searchUsers(
+            @RequestParam(required = false) String firstName,
+            @RequestParam(required = false) String lastName,
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) Byte typeUser,
+            @RequestParam(required = false) Byte status) {
+
+        List<UserResponse> users = userService.searchUsers(
+                firstName, lastName, email, typeUser, status);
+        return ResponseEntity.ok(users);
+    }
+
+    // Get user by email
+    @GetMapping("/email/{email}")
+    public ResponseEntity<UserResponse> getUserByEmail(@PathVariable String email) {
+        UserResponse response = userService.getUserByEmail(email);
+        return ResponseEntity.ok(response);
+    }
+
+    // Update password
+    @PatchMapping("/{id}/password")
+    public ResponseEntity<Void> updatePassword(
+            @PathVariable UUID id,
+            @RequestParam String newPassword) {
+        userService.updatePassword(id, newPassword);
+        return ResponseEntity.ok().build();
+    }
+
+    // Verify email
+    @PostMapping("/{id}/verify-email")
+    public ResponseEntity<Void> verifyEmail(@PathVariable UUID id) {
+        userService.verifyEmail(id);
+        return ResponseEntity.ok().build();
+    }
+
+    // Get deleted users
+    @GetMapping("/deleted")
+    public ResponseEntity<List<UserResponse>> getDeletedUsers() {
+        List<UserResponse> users = userService.getDeletedUsers();
+        return ResponseEntity.ok(users);
+    }
+
+    // Restore user
+    @PostMapping("/{id}/restore")
+    public ResponseEntity<Void> restoreUser(@PathVariable UUID id) {
+        userService.restoreUser(id);
+        return ResponseEntity.ok().build();
+    }
+
+    // Update login info
+    @PostMapping("/{id}/login-info")
+    public ResponseEntity<Void> updateLoginInfo(
+            @PathVariable UUID id,
+            @RequestParam String ipAddress) {
+        userService.updateLoginInfo(id, ipAddress);
+        return ResponseEntity.ok().build();
+    }
+}
