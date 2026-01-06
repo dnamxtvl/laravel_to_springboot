@@ -26,3 +26,8 @@ logging:
     org.springframework: INFO
     com.farukgenc.boilerplate.springboot: INFO
     liquibase: DEBUG
+
+jwt:
+  secret: secretKey
+  issuer: issuer
+  expirationMinute: 60
