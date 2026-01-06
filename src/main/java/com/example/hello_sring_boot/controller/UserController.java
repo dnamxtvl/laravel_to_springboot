@@ -6,8 +6,10 @@ import com.example.hello_sring_boot.dto.response.UserResponse;
 import com.example.hello_sring_boot.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,8 +18,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @RestController
-@RequestMapping("/api/v1/users")
+@RequestMapping("/api/users")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -126,5 +129,18 @@ public class UserController {
             @RequestParam String ipAddress) {
         userService.updateLoginInfo(id, ipAddress);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/pagination")
+    public ResponseEntity<Page<UserResponse>> searchUserPagination(
+            @RequestParam(required = false) String firstName,
+            @RequestParam(required = false) String lastName,
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) Byte typeUser,
+            @RequestParam(required = false) Byte status,
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        log.error("Authentication Exception : {}", "test");
+        return ResponseEntity.ok(userService.searchUserPagination(
+                firstName, lastName, email, typeUser, status, pageable));
     }
 }

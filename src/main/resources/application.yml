@@ -20,6 +20,9 @@ spring:
     drop-first: false
     contexts: dev
     change-log: classpath:db/changelog/db.changelog-master.yaml
-  logging:
-    level:
-      liquibase: DEBUG
+logging:
+  level:
+    root: TRACE
+    org.springframework: INFO
+    com.farukgenc.boilerplate.springboot: INFO
+    liquibase: DEBUG

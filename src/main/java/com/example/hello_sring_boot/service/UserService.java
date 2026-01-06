@@ -147,4 +147,12 @@ public class UserService {
         user.setDeletedAt(null);
         userRepository.save(user);
     }
+
+    public Page<UserResponse> searchUserPagination(String firstName, String lastName, String email, Byte typeUser,
+            Byte status,
+            Pageable pageable) {
+        Page<User> users = userRepository.searchUserPagination(firstName, lastName, email, typeUser, status, pageable);
+
+        return users.map(userMapper::toResponse);
+    }
 }
