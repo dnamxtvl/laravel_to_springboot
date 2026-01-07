@@ -2,6 +2,7 @@ package com.example.hello_sring_boot.controller;
 
 import com.example.hello_sring_boot.dto.request.CreateUserRequest;
 import com.example.hello_sring_boot.dto.request.UpdateUserRequest;
+import com.example.hello_sring_boot.dto.response.ApiResponse;
 import com.example.hello_sring_boot.dto.response.UserResponse;
 import com.example.hello_sring_boot.service.UserService;
 import jakarta.validation.Valid;
@@ -139,8 +140,10 @@ public class UserController {
             @RequestParam(required = false) Byte typeUser,
             @RequestParam(required = false) Byte status,
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        log.error("Authentication Exception : {}", "test");
-        return ResponseEntity.ok(userService.searchUserPagination(
-                firstName, lastName, email, typeUser, status, pageable));
+
+        Page<UserResponse> users = userService.searchUserPagination(
+                firstName, lastName, email, typeUser, status, pageable);
+
+        return ResponseEntity.ok(users);
     }
 }
