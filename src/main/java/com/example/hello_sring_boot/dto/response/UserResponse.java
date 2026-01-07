@@ -8,7 +8,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.UUID;
+
+import org.springframework.security.core.GrantedAuthority;
 
 @Data
 @Builder
@@ -25,6 +28,7 @@ public class UserResponse {
     private String avatar;
     private String backgroundProfile;
     private Integer fromCityId;
+    private String password;
     private Integer currentCityId;
     private Integer relationshipStatus;
     private Gender gender;

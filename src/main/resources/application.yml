@@ -28,6 +28,6 @@ logging:
     liquibase: DEBUG
 
 jwt:
-  secret: secretKey
+  secretKey: secretKey
   issuer: issuer
   expirationMinute: 60

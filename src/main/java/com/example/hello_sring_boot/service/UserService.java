@@ -12,16 +12,21 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import java.util.Arrays;
+import com.example.hello_sring_boot.enums.UserType;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class UserService {
+public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
@@ -154,5 +159,19 @@ public class UserService {
         Page<User> users = userRepository.searchUserPagination(firstName, lastName, email, typeUser, status, pageable);
 
         return users.map(userMapper::toResponse);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+
+        List<SimpleGrantedAuthority> authorities = Arrays
+                .asList(new SimpleGrantedAuthority("ROLE_" + UserType.fromValue(user.getTypeUser()).name()));
+
+        return new org.springframework.security.core.userdetails.User(
+                user.getEmail(),
+                user.getPassword(),
+                authorities);
     }
 }

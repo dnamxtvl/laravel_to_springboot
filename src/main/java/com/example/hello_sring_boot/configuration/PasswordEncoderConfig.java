@@ -1,4 +1,4 @@
-package com.example.hello_sring_boot.config;
+package com.example.hello_sring_boot.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

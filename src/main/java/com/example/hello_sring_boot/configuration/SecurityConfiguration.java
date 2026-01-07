@@ -1,9 +1,11 @@
-package com.example.hello_sring_boot.security;
+package com.example.hello_sring_boot.configuration;
 
-import jakarta.servlet.Filter;
+import com.example.hello_sring_boot.security.JwtAuthenticationEntryPoint;
+import com.example.hello_sring_boot.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
@@ -12,17 +14,17 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-
 @Configuration
 @RequiredArgsConstructor
-public class AuthenticationManager {
+public class SecurityConfiguration {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     private final JwtAuthenticationEntryPoint unauthorizedHandler;
 
     @Bean
-    public AuthenticationManager authenticationManager(final AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return (AuthenticationManager) authenticationConfiguration.getAuthenticationManager();
+    public AuthenticationManager authenticationManager(final AuthenticationConfiguration authenticationConfiguration)
+            throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
     }
 
     @Bean
@@ -33,13 +35,14 @@ public class AuthenticationManager {
         return http
                 .csrf(CsrfConfigurer::disable)
                 .cors(CorsConfigurer::disable)
-                .addFilterBefore((Filter)jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .authorizeHttpRequests(request -> request.requestMatchers("/register",
-                                "/login",
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .authorizeHttpRequests(request -> request.requestMatchers("/api/auth/register",
+                                "/api/auth/login",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
-                                "/actuator/**")
+                                "/actuator/**",
+                                "/error")
                         .permitAll()
                         .anyRequest()
                         .authenticated())

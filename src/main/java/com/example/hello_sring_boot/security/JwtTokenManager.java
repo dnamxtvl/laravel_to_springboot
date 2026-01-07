@@ -6,9 +6,10 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import com.example.hello_sring_boot.entity.User;
 import com.example.hello_sring_boot.enums.UserType;
-
+import org.springframework.stereotype.Component;
 import java.util.Date;
 
+@Component
 public class JwtTokenManager {
     private final JwtProperties jwtProperties;
 
@@ -18,7 +19,7 @@ public class JwtTokenManager {
 
     public String generateToken(User user) {
 
-        final String username = user.getFullName();
+        final String username = user.getEmail();
         final UserType userRole = UserType.fromValue(user.getTypeUser());
 
         //@formatter:off
@@ -32,7 +33,7 @@ public class JwtTokenManager {
         //@formatter:on
     }
 
-    public String getUsernameFromToken(String token) {
+    public String getEmailFromToken(String token) {
 
         final DecodedJWT decodedJWT = getDecodedJWT(token);
 
@@ -41,7 +42,7 @@ public class JwtTokenManager {
 
     public boolean validateToken(String token, String authenticatedUsername) {
 
-        final String usernameFromToken = getUsernameFromToken(token);
+        final String usernameFromToken = getEmailFromToken(token);
 
         final boolean equalsUsername = usernameFromToken.equals(authenticatedUsername);
         final boolean tokenExpired = isTokenExpired(token);
