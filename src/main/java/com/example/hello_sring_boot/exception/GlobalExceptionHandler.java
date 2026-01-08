@@ -1,6 +1,7 @@
 package com.example.hello_sring_boot.exception;
 
 import com.example.hello_sring_boot.dto.error.ErrorResponse;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -44,7 +45,7 @@ public class GlobalExceptionHandler {
         // Handle validation errors
         @ExceptionHandler(MethodArgumentNotValidException.class)
         public ResponseEntity<ErrorResponse> handleValidationExceptions(
-                        MethodArgumentNotValidException ex, HttpServletRequest request) {
+                MethodArgumentNotValidException ex, HttpServletRequest request) {
 
                 Map<String, String> errors = new HashMap<>();
                 ex.getBindingResult().getAllErrors().forEach((error) -> {
@@ -56,14 +57,14 @@ public class GlobalExceptionHandler {
                 log.error("Validation error: {}", errors);
 
                 ErrorResponse errorResponse = ErrorResponse.builder()
-                                .timestamp(LocalDateTime.now())
-                                .status(HttpStatus.UNPROCESSABLE_ENTITY.value())
-                                .error(HttpStatus.UNPROCESSABLE_ENTITY.getReasonPhrase())
-                                .errorCode("VALIDATION_FAILED")
-                                .message("Validation failed")
-                                .errors(errors)
-                                .path(request.getServletPath())
-                                .build();
+                        .timestamp(LocalDateTime.now())
+                        .status(HttpStatus.UNPROCESSABLE_ENTITY.value())
+                        .error(HttpStatus.UNPROCESSABLE_ENTITY.getReasonPhrase())
+                        .errorCode("VALIDATION_FAILED")
+                        .message("Validation failed")
+                        .errors(errors)
+                        .path(request.getServletPath())
+                        .build();
 
                 return new ResponseEntity<>(errorResponse, HttpStatus.UNPROCESSABLE_ENTITY);
         }
@@ -71,19 +72,19 @@ public class GlobalExceptionHandler {
         // Handle bad credentials (login failed)
         @ExceptionHandler(BadCredentialsException.class)
         public ResponseEntity<ErrorResponse> handleBadCredentialsException(
-                        BadCredentialsException ex, HttpServletRequest request) {
+                BadCredentialsException ex, HttpServletRequest request) {
 
                 log.error("BadCredentialsException: {}", ex.getStackTrace());
                 log.error("BadCredentialsException: {}", ex.getMessage());
 
                 ErrorResponse errorResponse = ErrorResponse.builder()
-                                .timestamp(LocalDateTime.now())
-                                .status(HttpStatus.BAD_REQUEST.value())
-                                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
-                                .errorCode("INVALID_CREDENTIALS")
-                                .message("auth.user.invalid_credentials")
-                                .path(request.getServletPath())
-                                .build();
+                        .timestamp(LocalDateTime.now())
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
+                        .errorCode("INVALID_CREDENTIALS")
+                        .message("auth.user.invalid_credentials")
+                        .path(request.getServletPath())
+                        .build();
 
                 return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
         }
@@ -91,18 +92,18 @@ public class GlobalExceptionHandler {
         // Handle access denied (403)
         @ExceptionHandler(AccessDeniedException.class)
         public ResponseEntity<ErrorResponse> handleAccessDeniedException(
-                        AccessDeniedException ex, HttpServletRequest request) {
+                AccessDeniedException ex, HttpServletRequest request) {
 
                 log.error("AccessDeniedException: {}", ex.getMessage());
 
                 ErrorResponse errorResponse = ErrorResponse.builder()
-                                .timestamp(LocalDateTime.now())
-                                .status(HttpStatus.FORBIDDEN.value())
-                                .error(HttpStatus.FORBIDDEN.getReasonPhrase())
-                                .errorCode("ACCESS_DENIED")
-                                .message("You don't have permission to access this resource")
-                                .path(request.getServletPath())
-                                .build();
+                        .timestamp(LocalDateTime.now())
+                        .status(HttpStatus.FORBIDDEN.value())
+                        .error(HttpStatus.FORBIDDEN.getReasonPhrase())
+                        .errorCode("ACCESS_DENIED")
+                        .message("You don't have permission to access this resource")
+                        .path(request.getServletPath())
+                        .build();
 
                 return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
         }
@@ -116,13 +117,13 @@ public class GlobalExceptionHandler {
                 log.error("MissingServletRequestParameterException: {}", error);
 
                 ErrorResponse errorResponse = ErrorResponse.builder()
-                                .timestamp(LocalDateTime.now())
-                                .status(HttpStatus.BAD_REQUEST.value())
-                                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
-                                .errorCode("MISSING_PARAMETER")
-                                .message(error)
-                                .path(request.getServletPath())
-                                .build();
+                        .timestamp(LocalDateTime.now())
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
+                        .errorCode("MISSING_PARAMETER")
+                        .message(error)
+                        .path(request.getServletPath())
+                        .build();
 
                 return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
         }
@@ -135,13 +136,13 @@ public class GlobalExceptionHandler {
                 log.error("HttpMessageNotReadableException: {}", ex.getMessage());
 
                 ErrorResponse errorResponse = ErrorResponse.builder()
-                                .timestamp(LocalDateTime.now())
-                                .status(HttpStatus.BAD_REQUEST.value())
-                                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
-                                .errorCode("INVALID_JSON")
-                                .message("Invalid JSON format in request body")
-                                .path(request.getServletPath())
-                                .build();
+                        .timestamp(LocalDateTime.now())
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
+                        .errorCode("INVALID_JSON")
+                        .message("Invalid JSON format in request body")
+                        .path(request.getServletPath())
+                        .build();
 
                 return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
         }
@@ -149,22 +150,22 @@ public class GlobalExceptionHandler {
         // Handle type mismatch in parameters
         @ExceptionHandler(MethodArgumentTypeMismatchException.class)
         public ResponseEntity<ErrorResponse> handleTypeMismatch(
-                        MethodArgumentTypeMismatchException ex, HttpServletRequest request) {
+                MethodArgumentTypeMismatchException ex, HttpServletRequest request) {
 
                 String error = String.format("Parameter '%s' should be of type '%s'",
-                                ex.getName(),
-                                ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "unknown");
+                        ex.getName(),
+                        ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "unknown");
 
                 log.error("MethodArgumentTypeMismatchException: {}", error);
 
                 ErrorResponse errorResponse = ErrorResponse.builder()
-                                .timestamp(LocalDateTime.now())
-                                .status(HttpStatus.BAD_REQUEST.value())
-                                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
-                                .errorCode("TYPE_MISMATCH")
-                                .message(error)
-                                .path(request.getServletPath())
-                                .build();
+                        .timestamp(LocalDateTime.now())
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .error("type.mismatch")
+                        .errorCode("TYPE_MISMATCH")
+                        .message(error)
+                        .path(request.getServletPath())
+                        .build();
 
                 return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
         }
@@ -177,13 +178,13 @@ public class GlobalExceptionHandler {
                 log.error("NoHandlerFoundException: {} {}", ex.getHttpMethod(), ex.getRequestURL());
 
                 ErrorResponse errorResponse = ErrorResponse.builder()
-                                .timestamp(LocalDateTime.now())
-                                .status(HttpStatus.NOT_FOUND.value())
-                                .error(HttpStatus.NOT_FOUND.getReasonPhrase())
-                                .errorCode("ENDPOINT_NOT_FOUND")
-                                .message("The requested endpoint was not found")
-                                .path(request.getServletPath())
-                                .build();
+                        .timestamp(LocalDateTime.now())
+                        .status(HttpStatus.NOT_FOUND.value())
+                        .error(HttpStatus.NOT_FOUND.getReasonPhrase())
+                        .errorCode("ENDPOINT_NOT_FOUND")
+                        .message("The requested endpoint was not found")
+                        .path(request.getServletPath())
+                        .build();
 
                 return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
         }
@@ -195,17 +196,32 @@ public class GlobalExceptionHandler {
                 log.error("RateLimitException: {}", ex.getMessage());
 
                 ErrorResponse errorResponse = ErrorResponse.builder()
-                                .timestamp(LocalDateTime.now())
-                                .status(HttpStatus.TOO_MANY_REQUESTS.value())
-                                .error(HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase())
-                                .errorCode("RATE_LIMIT_EXCEEDED")
-                                .message("Rate limit exceeded")
-                                .path(request.getServletPath())
-                                .build();
+                        .timestamp(LocalDateTime.now())
+                        .status(HttpStatus.TOO_MANY_REQUESTS.value())
+                        .error(HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase())
+                        .errorCode("RATE_LIMIT_EXCEEDED")
+                        .message("Rate limit exceeded")
+                        .path(request.getServletPath())
+                        .build();
 
                 return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
                                 .header("X-Rate-Limit-Retry-After-Seconds", String.valueOf(ex.getRetryAfterSeconds()))
                                 .body(errorResponse);
+        }
+
+        // Handle EntityNotFoundException - 404
+        @ExceptionHandler(EntityNotFoundException.class)
+        public ResponseEntity<ErrorResponse> handleEntityNotFoundException(EntityNotFoundException ex, HttpServletRequest request) {
+                ErrorResponse errorResponse = ErrorResponse.builder()
+                        .timestamp(LocalDateTime.now())
+                        .status(HttpStatus.NOT_FOUND.value())
+                        .error(HttpStatus.NOT_FOUND.getReasonPhrase())
+                        .errorCode("ENDPOINT_NOT_FOUND")
+                        .message(ex.getMessage())
+                        .path(request.getServletPath())
+                        .build();
+
+                return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
         }
 
         // Handle all other exceptions
@@ -214,13 +230,13 @@ public class GlobalExceptionHandler {
                 log.error("Unhandled exception: ", ex);
 
                 ErrorResponse errorResponse = ErrorResponse.builder()
-                                .timestamp(LocalDateTime.now())
-                                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                                .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                                .errorCode("INTERNAL_ERROR")
-                                .message("An unexpected error occurred")
-                                .path(request.getServletPath())
-                                .build();
+                        .timestamp(LocalDateTime.now())
+                        .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                        .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
+                        .errorCode("INTERNAL_ERROR")
+                        .message("An unexpected error occurred")
+                        .path(request.getServletPath())
+                        .build();
 
                 return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }

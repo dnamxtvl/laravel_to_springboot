@@ -3,7 +3,9 @@ package com.example.hello_sring_boot.controller;
 import com.example.hello_sring_boot.dto.request.CreateUserRequest;
 import com.example.hello_sring_boot.dto.request.UpdateUserRequest;
 import com.example.hello_sring_boot.dto.response.ApiResponse;
+import com.example.hello_sring_boot.dto.response.PaginatedResponse;
 import com.example.hello_sring_boot.dto.response.UserResponse;
+import com.example.hello_sring_boot.mapper.PaginationMapper;
 import com.example.hello_sring_boot.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,9 +38,10 @@ public class UserController {
 
     // Get user by ID
     @GetMapping("/{id}")
-    public ResponseEntity<UserResponse> getUserById(@PathVariable UUID id) {
-        UserResponse response = userService.getUserById(id);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<ApiResponse<UserResponse>> getUserById(@PathVariable UUID id) {
+        UserResponse response = userService.getUserById(String.valueOf(id));
+        ApiResponse<UserResponse> apiResponse = ApiResponse.<UserResponse>builder().data(response).build();
+        return ResponseEntity.ok(apiResponse);
     }
 
     // Get all users with pagination
@@ -54,21 +57,21 @@ public class UserController {
     public ResponseEntity<UserResponse> updateUser(
             @PathVariable UUID id,
             @Valid @RequestBody UpdateUserRequest request) {
-        UserResponse response = userService.updateUser(id, request);
+        UserResponse response = userService.updateUser(String.valueOf(id), request);
         return ResponseEntity.ok(response);
     }
 
     // Delete user (soft delete)
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
-        userService.deleteUser(id);
+        userService.deleteUser(String.valueOf(id));
         return ResponseEntity.noContent().build();
     }
 
     // Hard delete user
     @DeleteMapping("/{id}/hard")
     public ResponseEntity<Void> hardDeleteUser(@PathVariable UUID id) {
-        userService.hardDeleteUser(id);
+        userService.hardDeleteUser(String.valueOf(id));
         return ResponseEntity.noContent().build();
     }
 
@@ -98,14 +101,14 @@ public class UserController {
     public ResponseEntity<Void> updatePassword(
             @PathVariable UUID id,
             @RequestParam String newPassword) {
-        userService.updatePassword(id, newPassword);
+        userService.updatePassword(String.valueOf(id), newPassword);
         return ResponseEntity.ok().build();
     }
 
     // Verify email
     @PostMapping("/{id}/verify-email")
     public ResponseEntity<Void> verifyEmail(@PathVariable UUID id) {
-        userService.verifyEmail(id);
+        userService.verifyEmail(String.valueOf(id));
         return ResponseEntity.ok().build();
     }
 
@@ -119,7 +122,7 @@ public class UserController {
     // Restore user
     @PostMapping("/{id}/restore")
     public ResponseEntity<Void> restoreUser(@PathVariable UUID id) {
-        userService.restoreUser(id);
+        userService.restoreUser(String.valueOf(id));
         return ResponseEntity.ok().build();
     }
 
@@ -128,12 +131,12 @@ public class UserController {
     public ResponseEntity<Void> updateLoginInfo(
             @PathVariable UUID id,
             @RequestParam String ipAddress) {
-        userService.updateLoginInfo(id, ipAddress);
+        userService.updateLoginInfo(String.valueOf(id), ipAddress);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/pagination")
-    public ResponseEntity<Page<UserResponse>> searchUserPagination(
+    public ResponseEntity<PaginatedResponse<UserResponse>> searchUserPagination(
             @RequestParam(required = false) String firstName,
             @RequestParam(required = false) String lastName,
             @RequestParam(required = false) String email,
@@ -141,9 +144,11 @@ public class UserController {
             @RequestParam(required = false) Byte status,
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        Page<UserResponse> users = userService.searchUserPagination(
-                firstName, lastName, email, typeUser, status, pageable);
+        Page<UserResponse> userPage = userService.searchUserPagination(
+                firstName, lastName, email, typeUser, status, pageable
+        );
+        PaginatedResponse<UserResponse> response = PaginationMapper.toPaginatedResponse(userPage);
 
-        return ResponseEntity.ok(users);
+        return ResponseEntity.ok(response);
     }
 }

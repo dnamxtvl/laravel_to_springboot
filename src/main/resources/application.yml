@@ -1,4 +1,8 @@
 spring:
+  data:
+    web:
+      pageable:
+        one-indexed-parameters: true
   datasource:
     url: jdbc:mysql://localhost:3309/myapp
     username: myuser

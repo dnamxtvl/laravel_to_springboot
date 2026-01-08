@@ -10,24 +10,23 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, UUID>, JpaSpecificationExecutor<User> {
+public interface UserRepository extends JpaRepository<User, String>, JpaSpecificationExecutor<User> {
 
         @Query("SELECT u FROM User u WHERE " +
-                        "(:firstName IS NULL OR LOWER(u.firstName) LIKE LOWER(CONCAT('%', :firstName, '%'))) AND " +
-                        "(:lastName IS NULL OR LOWER(u.lastName) LIKE LOWER(CONCAT('%', :lastName, '%'))) AND " +
-                        "(:email IS NULL OR LOWER(u.email) LIKE LOWER(CONCAT('%', :email, '%'))) AND " +
-                        "(:typeUser IS NULL OR u.typeUser = :typeUser) AND " +
-                        "(:status IS NULL OR u.status = :status)")
+                "(:firstName IS NULL OR LOWER(u.firstName) LIKE LOWER(CONCAT('%', :firstName, '%'))) AND " +
+                "(:lastName IS NULL OR LOWER(u.lastName) LIKE LOWER(CONCAT('%', :lastName, '%'))) AND " +
+                "(:email IS NULL OR LOWER(u.email) LIKE LOWER(CONCAT('%', :email, '%'))) AND " +
+                "(:typeUser IS NULL OR u.typeUser = :typeUser) AND " +
+                "(:status IS NULL OR u.status = :status)")
         Page<User> searchUserPagination(
-                        @Param("firstName") String firstName,
-                        @Param("lastName") String lastName,
-                        @Param("email") String email,
-                        @Param("typeUser") Byte typeUser,
-                        @Param("status") Byte status,
-                        Pageable pageable);
+                @Param("firstName") String firstName,
+                @Param("lastName") String lastName,
+                @Param("email") String email,
+                @Param("typeUser") Byte typeUser,
+                @Param("status") Byte status,
+                Pageable pageable);
 
         Optional<User> findByEmail(String email);
 

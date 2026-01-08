@@ -10,7 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApiResponse<T> {
-    private int status;
-    private String message;
+    @Builder.Default
+    private String message = "Success";
     private T data;
 }

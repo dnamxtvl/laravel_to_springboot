@@ -8,7 +8,6 @@ import jakarta.persistence.*;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 @Table(name = "users", indexes = {
@@ -26,12 +25,11 @@ import java.util.UUID;
 @SQLDelete(sql = "UPDATE users SET deleted_at = NOW() WHERE id = ?")
 @Where(clause = "deleted_at IS NULL")
 public class User {
-
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     @Column(name = "id", updatable = false, nullable = false, columnDefinition = "UUID")
-    private UUID id;
+    private String id;
 
     @Column(name = "first_name", length = 50)
     private String firstName;

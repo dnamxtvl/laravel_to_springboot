@@ -6,7 +6,9 @@ import com.example.hello_sring_boot.dto.response.UserResponse;
 import com.example.hello_sring_boot.entity.User;
 import com.example.hello_sring_boot.mapper.UserMapper;
 import com.example.hello_sring_boot.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,6 +25,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import java.util.Arrays;
 import com.example.hello_sring_boot.enums.UserType;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -51,9 +54,9 @@ public class UserService implements UserDetailsService {
     }
 
     // Get by ID
-    public UserResponse getUserById(UUID id) {
+    public UserResponse getUserById(String id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
         return userMapper.toResponse(user);
     }
 
@@ -64,7 +67,7 @@ public class UserService implements UserDetailsService {
     }
 
     // Update
-    public UserResponse updateUser(UUID id, UpdateUserRequest request) {
+    public UserResponse updateUser(String id, UpdateUserRequest request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
 
@@ -75,7 +78,7 @@ public class UserService implements UserDetailsService {
     }
 
     // Delete (soft delete)
-    public void deleteUser(UUID id) {
+    public void deleteUser(String id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
 
@@ -84,7 +87,7 @@ public class UserService implements UserDetailsService {
     }
 
     // Hard delete
-    public void hardDeleteUser(UUID id) {
+    public void hardDeleteUser(String id) {
         if (!userRepository.existsById(id)) {
             throw new RuntimeException("User not found with id: " + id);
         }
@@ -107,7 +110,7 @@ public class UserService implements UserDetailsService {
     }
 
     // Update password
-    public void updatePassword(UUID id, String newPassword) {
+    public void updatePassword(String id, String newPassword) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
 
@@ -116,7 +119,7 @@ public class UserService implements UserDetailsService {
     }
 
     // Update email verification
-    public void verifyEmail(UUID id) {
+    public void verifyEmail(String id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
 
@@ -125,7 +128,7 @@ public class UserService implements UserDetailsService {
     }
 
     // Update login info
-    public void updateLoginInfo(UUID id, String ipAddress) {
+    public void updateLoginInfo(String id, String ipAddress) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
 
@@ -145,7 +148,7 @@ public class UserService implements UserDetailsService {
     }
 
     // Restore user
-    public void restoreUser(UUID id) {
+    public void restoreUser(String id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
 
