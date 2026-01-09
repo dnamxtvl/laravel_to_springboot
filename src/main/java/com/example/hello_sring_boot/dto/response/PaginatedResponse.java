@@ -1,6 +1,5 @@
 package com.example.hello_sring_boot.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,18 +12,20 @@ import java.util.List;
 @AllArgsConstructor
 public class PaginatedResponse<T> {
 
-    @JsonProperty("items")
-    private List<T> items;
+    @Builder.Default
+    private String message = "Success";
 
-    @JsonProperty("currentPage")
-    private int currentPage;
+    private Data<T> data;
 
-    @JsonProperty("lastPage")
-    private int lastPage;
-
-    @JsonProperty("perPage")
-    private int perPage;
-
-    @JsonProperty("total")
-    private long total;
+    @lombok.Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Data<T> {
+        private List<T> items;
+        private int currentPage;
+        private int lastPage;
+        private int perPage;
+        private long total;
+    }
 }

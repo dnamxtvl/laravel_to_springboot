@@ -3,6 +3,8 @@ package com.example.hello_sring_boot.exception;
 import com.example.hello_sring_boot.dto.error.ErrorResponse;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,11 +12,13 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.time.LocalDateTime;
@@ -31,13 +35,13 @@ public class GlobalExceptionHandler {
                 log.error("BaseException: {}", ex.getMessage(), ex);
 
                 ErrorResponse errorResponse = ErrorResponse.builder()
-                                .timestamp(LocalDateTime.now())
-                                .status(ex.getStatus().value())
-                                .error(ex.getStatus().getReasonPhrase())
-                                .errorCode(ex.getErrorCode())
-                                .message(ex.getMessage())
-                                .path(request.getServletPath())
-                                .build();
+                        .timestamp(LocalDateTime.now())
+                        .status(ex.getStatus().value())
+                        .error(ex.getStatus().getReasonPhrase())
+                        .errorCode(ex.getErrorCode())
+                        .message(ex.getMessage())
+                        .path(request.getServletPath())
+                        .build();
 
                 return new ResponseEntity<>(errorResponse, ex.getStatus());
         }
@@ -72,7 +76,7 @@ public class GlobalExceptionHandler {
         // Handle bad credentials (login failed)
         @ExceptionHandler(BadCredentialsException.class)
         public ResponseEntity<ErrorResponse> handleBadCredentialsException(
-                BadCredentialsException ex, HttpServletRequest request) {
+                        BadCredentialsException ex, HttpServletRequest request) {
 
                 log.error("BadCredentialsException: {}", ex.getStackTrace());
                 log.error("BadCredentialsException: {}", ex.getMessage());
@@ -211,7 +215,8 @@ public class GlobalExceptionHandler {
 
         // Handle EntityNotFoundException - 404
         @ExceptionHandler(EntityNotFoundException.class)
-        public ResponseEntity<ErrorResponse> handleEntityNotFoundException(EntityNotFoundException ex, HttpServletRequest request) {
+        public ResponseEntity<ErrorResponse> handleEntityNotFoundException(EntityNotFoundException ex,
+                        HttpServletRequest request) {
                 ErrorResponse errorResponse = ErrorResponse.builder()
                         .timestamp(LocalDateTime.now())
                         .status(HttpStatus.NOT_FOUND.value())
@@ -222,6 +227,57 @@ public class GlobalExceptionHandler {
                         .build();
 
                 return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+        }
+
+        // Handle HttpMediaTypeNotSupportedException - status 415
+        @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+        public ResponseEntity<ErrorResponse> MediaTypeNotSupportedException(HttpMediaTypeNotSupportedException ex,
+                        HttpServletRequest request) {
+                ErrorResponse errorResponse = ErrorResponse.builder()
+                        .timestamp(LocalDateTime.now())
+                        .status(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value())
+                        .error("file.upload.invalid_type")
+                        .errorCode("ENDPOINT_NOT_FOUND")
+                        .message(ex.getMessage())
+                        .path(request.getServletPath())
+                        .build();
+
+                return new ResponseEntity<>(errorResponse, HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+        }
+
+        @ExceptionHandler(MaxUploadSizeExceededException.class)
+        public ResponseEntity<ErrorResponse> maxUploadSizeExceededException(MaxUploadSizeExceededException ex,
+                        HttpServletRequest request) {
+                ErrorResponse errorResponse = ErrorResponse.builder()
+                        .timestamp(LocalDateTime.now())
+                        .status(HttpStatus.UNPROCESSABLE_ENTITY.value())
+                        .error("file.upload.max-size")
+                        .errorCode("validation.max-size")
+                        .message(ex.getMessage())
+                        .path(request.getServletPath())
+                        .build();
+
+                return new ResponseEntity<>(errorResponse, HttpStatus.UNPROCESSABLE_ENTITY);
+        }
+
+        @ExceptionHandler(ConstraintViolationException.class)
+        public ResponseEntity<ErrorResponse> handleConstraintViolationException(
+                ConstraintViolationException ex, HttpServletRequest request) {
+                String errorMessage = ex.getConstraintViolations().stream()
+                        .map(ConstraintViolation::getMessage)
+                        .findFirst()
+                        .orElse("Validation failed");
+
+                ErrorResponse errorResponse = ErrorResponse.builder()
+                        .timestamp(LocalDateTime.now())
+                        .status(HttpStatus.UNPROCESSABLE_ENTITY.value())
+                        .error("file.upload.invalid_format")
+                        .errorCode("VALIDATION_ERROR")
+                        .message(errorMessage)
+                        .path(request.getServletPath())
+                        .build();
+
+                return new ResponseEntity<>(errorResponse, HttpStatus.UNPROCESSABLE_ENTITY);
         }
 
         // Handle all other exceptions

@@ -16,12 +16,6 @@ public class UpdateUserRequest {
     @Size(max = 255, message = "About me must be less than 255 characters")
     private String aboutMe;
 
-    private String avatar;
-    private String backgroundProfile;
-    private Integer fromCityId;
-    private Integer currentCityId;
-    private Integer relationshipStatus;
-
     @Min(1) @Max(31)
     private Integer dayOfBirth;
 

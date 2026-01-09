@@ -35,3 +35,7 @@ jwt:
   secretKey: secretKey
   issuer: issuer
   expirationMinute: 60
+
+app:
+  file-storage:
+    upload-dir: ./uploads

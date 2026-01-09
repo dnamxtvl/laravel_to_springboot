@@ -1,11 +1,13 @@
 package com.example.hello_sring_boot.controller;
 
+import com.example.hello_sring_boot.anotation.FileValidator;
 import com.example.hello_sring_boot.dto.request.CreateUserRequest;
 import com.example.hello_sring_boot.dto.request.UpdateUserRequest;
 import com.example.hello_sring_boot.dto.response.ApiResponse;
 import com.example.hello_sring_boot.dto.response.PaginatedResponse;
 import com.example.hello_sring_boot.dto.response.UserResponse;
 import com.example.hello_sring_boot.mapper.PaginationMapper;
+import com.example.hello_sring_boot.service.FileStorageService;
 import com.example.hello_sring_boot.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +18,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -25,9 +29,11 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
+@Validated
 public class UserController {
 
     private final UserService userService;
+    private final FileStorageService fileStorageService;
 
     // Create user
     @PostMapping
@@ -53,10 +59,15 @@ public class UserController {
     }
 
     // Update user
-    @PutMapping("/{id}")
+    @PostMapping("/{id}")
     public ResponseEntity<UserResponse> updateUser(
             @PathVariable UUID id,
-            @Valid @RequestBody UpdateUserRequest request) {
+            @Valid @ModelAttribute UpdateUserRequest request,
+            @FileValidator(maxSize = 1024 * 1024, allowedTypes = { "pdf" }) @RequestParam("file") MultipartFile file) {
+
+        String fileName = fileStorageService.save(file);
+        log.error("File name: {}", fileName);
+
         UserResponse response = userService.updateUser(String.valueOf(id), request);
         return ResponseEntity.ok(response);
     }
@@ -145,8 +156,7 @@ public class UserController {
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
         Page<UserResponse> userPage = userService.searchUserPagination(
-                firstName, lastName, email, typeUser, status, pageable
-        );
+                firstName, lastName, email, typeUser, status, pageable);
         PaginatedResponse<UserResponse> response = PaginationMapper.toPaginatedResponse(userPage);
 
         return ResponseEntity.ok(response);

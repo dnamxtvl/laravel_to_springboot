@@ -30,12 +30,16 @@ public class PaginationMapper {
     }
 
     private static <T> PaginatedResponse<T> buildPaginatedResponse(Page<?> page, List<T> items) {
-        return PaginatedResponse.<T>builder()
+        PaginatedResponse.Data<T> data = PaginatedResponse.Data.<T>builder()
                 .items(items)
                 .currentPage(page.getNumber() + 1) // Spring: 0-based → 1-based
                 .lastPage(page.getTotalPages())
                 .perPage(page.getSize())
                 .total(page.getTotalElements())
+                .build();
+
+        return PaginatedResponse.<T>builder()
+                .data(data)
                 .build();
     }
 }
