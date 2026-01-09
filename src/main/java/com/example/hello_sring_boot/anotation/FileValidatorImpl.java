@@ -3,7 +3,6 @@ package com.example.hello_sring_boot.anotation;
 import jakarta.validation.ConstraintValidatorContext;
 import org.springframework.web.multipart.MultipartFile;
 import jakarta.validation.ConstraintValidator;
-import org.springframework.util.StringUtils;
 import org.apache.commons.io.FilenameUtils;
 
 import java.util.Arrays;

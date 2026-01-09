@@ -209,14 +209,14 @@ public class GlobalExceptionHandler {
                         .build();
 
                 return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
-                                .header("X-Rate-Limit-Retry-After-Seconds", String.valueOf(ex.getRetryAfterSeconds()))
-                                .body(errorResponse);
+                        .header("X-Rate-Limit-Retry-After-Seconds", String.valueOf(ex.getRetryAfterSeconds()))
+                        .body(errorResponse);
         }
 
         // Handle EntityNotFoundException - 404
         @ExceptionHandler(EntityNotFoundException.class)
         public ResponseEntity<ErrorResponse> handleEntityNotFoundException(EntityNotFoundException ex,
-                        HttpServletRequest request) {
+                HttpServletRequest request) {
                 ErrorResponse errorResponse = ErrorResponse.builder()
                         .timestamp(LocalDateTime.now())
                         .status(HttpStatus.NOT_FOUND.value())
@@ -232,7 +232,7 @@ public class GlobalExceptionHandler {
         // Handle HttpMediaTypeNotSupportedException - status 415
         @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
         public ResponseEntity<ErrorResponse> MediaTypeNotSupportedException(HttpMediaTypeNotSupportedException ex,
-                        HttpServletRequest request) {
+                HttpServletRequest request) {
                 ErrorResponse errorResponse = ErrorResponse.builder()
                         .timestamp(LocalDateTime.now())
                         .status(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value())

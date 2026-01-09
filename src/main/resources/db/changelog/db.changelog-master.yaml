@@ -1,3 +1,5 @@
 databaseChangeLog:
   - include:
       file: classpath:db/changelog/changeset-001-create-users-table.sql
+  - include:
+      file: classpath:db/changelog/changeset-002-create-forgot-password-table.sql

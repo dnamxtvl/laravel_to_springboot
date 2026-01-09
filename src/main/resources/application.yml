@@ -1,5 +1,32 @@
 spring:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: "kakitani2000@gmail.com"
+    password: "dsfdf"
+    protocol: "smtp"
+    default-encoding: UTF-8
+    properties:
+      mail.smtp.auth: false
+      mail.smtp.starttls.enable: true
+      mail.smtp.connectiontimeout: 10000
+      mail.smtp.timeout: 10000
+      mail.smtp.writetimeout: 10000
+      debug: true
+
+  org:
+    jobrunr:
+      background-job-server:
+        enabled: true
+        worker-count: 5
+      dashboard:
+        enabled: true
+        port: 8001
+
   data:
+    redis:
+      host: localhost
+      port: 6379
     web:
       pageable:
         one-indexed-parameters: true
