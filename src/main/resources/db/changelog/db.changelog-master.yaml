@@ -3,3 +3,13 @@ databaseChangeLog:
       file: classpath:db/changelog/changeset-001-create-users-table.sql
   - include:
       file: classpath:db/changelog/changeset-002-create-forgot-password-table.sql
+  - include:
+      file: classpath:db/changelog/changeset-004-create-roles-table.sql
+  - include:
+      file: classpath:db/changelog/changeset-005-create-permissions-table.sql
+  - include:
+      file: classpath:db/changelog/changeset-006-create-role-permissions-table.sql
+  - include:
+      file: classpath:db/changelog/changeset-007-add-role-id-to-users.sql
+  - include:
+      file: classpath:db/changelog/changeset-008-seed-permissions-users.sql

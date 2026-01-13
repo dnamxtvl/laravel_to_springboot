@@ -3,6 +3,7 @@ package com.example.hello_sring_boot.repository;
 import com.example.hello_sring_boot.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -59,4 +60,7 @@ public interface UserRepository extends JpaRepository<User, String>, JpaSpecific
 
         @Query("SELECT u FROM User u WHERE u.deletedAt IS NOT NULL")
         List<User> findAllDeleted();
+
+        @EntityGraph(attributePaths = {"role", "role.permissions"})
+        Optional<User> findWithRolesAndPermissionsByEmail(String email);
 }

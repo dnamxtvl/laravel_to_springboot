@@ -3,7 +3,6 @@ package com.example.hello_sring_boot.entity;
 import jakarta.persistence.Index;
 import lombok.*;
 import org.hibernate.annotations.*;
-
 import jakarta.persistence.*;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -119,6 +118,10 @@ public class User {
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "role_id", referencedColumnName = "id")
+    private Role role;
 
     // Helper methods
     public String getFullName() {

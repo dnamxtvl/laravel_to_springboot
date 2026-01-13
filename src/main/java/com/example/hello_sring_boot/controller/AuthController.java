@@ -1,5 +1,6 @@
 package com.example.hello_sring_boot.controller;
 
+import com.example.hello_sring_boot.dto.request.ChangePasswordRequest;
 import com.example.hello_sring_boot.dto.request.ForgotPasswordRequest;
 import com.example.hello_sring_boot.dto.request.LoginRequest;
 import com.example.hello_sring_boot.dto.response.LoginResponse;
@@ -7,10 +8,9 @@ import com.example.hello_sring_boot.service.AuthService;
 import com.example.hello_sring_boot.service.JwtTokenService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.apache.coyote.BadRequestException;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -31,8 +31,14 @@ public class AuthController {
     }
 
     @PostMapping("/forgot-password")
-    public Void forgotPassword(@Valid @RequestBody ForgotPasswordRequest body) {
+    public ResponseEntity<Void> forgotPassword(@Valid @RequestBody ForgotPasswordRequest body) {
         authService.forgotPassword(body.getEmail());
-        return null;
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/change-password/{token}")
+    public ResponseEntity<Void> changePassword(@Valid @RequestBody ChangePasswordRequest body, @PathVariable String token) throws BadRequestException {
+        authService.changePassword(token, body.getPassword());
+        return ResponseEntity.ok().build();
     }
 }

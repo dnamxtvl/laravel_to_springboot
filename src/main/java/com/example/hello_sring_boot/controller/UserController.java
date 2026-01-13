@@ -6,6 +6,8 @@ import com.example.hello_sring_boot.dto.request.UpdateUserRequest;
 import com.example.hello_sring_boot.dto.response.ApiResponse;
 import com.example.hello_sring_boot.dto.response.PaginatedResponse;
 import com.example.hello_sring_boot.dto.response.UserResponse;
+import com.example.hello_sring_boot.dto.response.UserWithPermsResponse;
+import com.example.hello_sring_boot.entity.User;
 import com.example.hello_sring_boot.mapper.PaginationMapper;
 import com.example.hello_sring_boot.service.FileStorageService;
 import com.example.hello_sring_boot.service.UserService;
@@ -18,6 +20,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -160,5 +163,11 @@ public class UserController {
         PaginatedResponse<UserResponse> response = PaginationMapper.toPaginatedResponse(userPage);
 
         return ResponseEntity.ok(response);
+    }
+
+    @PreAuthorize("hasAuthority('USER_VIEW')")
+    @GetMapping("/with-roles-and-permissions/{id}")
+    public ResponseEntity<Void> findWithRolesAndPermissionsByEmail(@PathVariable UUID id) {
+        return ResponseEntity.ok().build();
     }
 }

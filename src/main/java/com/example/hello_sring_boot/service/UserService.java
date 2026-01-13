@@ -3,6 +3,8 @@ package com.example.hello_sring_boot.service;
 import com.example.hello_sring_boot.dto.request.CreateUserRequest;
 import com.example.hello_sring_boot.dto.request.UpdateUserRequest;
 import com.example.hello_sring_boot.dto.response.UserResponse;
+import com.example.hello_sring_boot.dto.response.UserWithPermsResponse;
+import com.example.hello_sring_boot.entity.Permission;
 import com.example.hello_sring_boot.entity.User;
 import com.example.hello_sring_boot.mapper.UserMapper;
 import com.example.hello_sring_boot.repository.UserRepository;
@@ -15,14 +17,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import java.util.Arrays;
 import com.example.hello_sring_boot.enums.UserType;
 
 @Slf4j
@@ -176,5 +176,23 @@ public class UserService implements UserDetailsService {
                 user.getEmail(),
                 user.getPassword(),
                 authorities);
+    }
+
+    public UserWithPermsResponse findWithRolesAndPermissionsByEmail(String email) {
+         User user = userRepository.findWithRolesAndPermissionsByEmail(email).
+                orElseThrow(() -> new EntityNotFoundException("User not found with email: " + email));
+
+        List<String> permissions = Optional.ofNullable(user.getRole())
+                .map(role -> role.getPermissions().stream()
+                        .map(Permission::getName)
+                        .collect(Collectors.toList()))
+                .orElse(Collections.emptyList());
+
+         return UserWithPermsResponse.builder()
+                 .id(user.getId())
+                 .email(user.getEmail())
+                 .password(user.getPassword())
+                 .name(user.getFirstName() + " " + user.getLastName())
+                 .permissions(permissions).build();
     }
 }

@@ -8,10 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.UUID;
-
-import org.springframework.security.core.GrantedAuthority;
 
 @Data
 @Builder
