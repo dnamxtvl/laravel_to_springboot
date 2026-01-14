@@ -6,8 +6,6 @@ import com.example.hello_sring_boot.dto.request.UpdateUserRequest;
 import com.example.hello_sring_boot.dto.response.ApiResponse;
 import com.example.hello_sring_boot.dto.response.PaginatedResponse;
 import com.example.hello_sring_boot.dto.response.UserResponse;
-import com.example.hello_sring_boot.dto.response.UserWithPermsResponse;
-import com.example.hello_sring_boot.entity.User;
 import com.example.hello_sring_boot.mapper.PaginationMapper;
 import com.example.hello_sring_boot.service.FileStorageService;
 import com.example.hello_sring_boot.service.UserService;
