@@ -18,7 +18,7 @@ public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", updatable = false, nullable = false, columnDefinition = "INT")
-    private String id;
+    private int id;
 
     @Column(name = "name", nullable = false, unique = true)
     private String name;

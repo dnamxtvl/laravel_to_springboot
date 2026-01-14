@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.NoHandlerFoundException;
+import org.apache.coyote.BadRequestException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -278,6 +279,21 @@ public class GlobalExceptionHandler {
                         .build();
 
                 return new ResponseEntity<>(errorResponse, HttpStatus.UNPROCESSABLE_ENTITY);
+        }
+
+        // Handle BadRequestException
+        @ExceptionHandler(BadRequestException.class)
+        public ResponseEntity<ErrorResponse> handleBadRequestException(BadRequestException ex, HttpServletRequest request) {
+                ErrorResponse errorResponse = ErrorResponse.builder()
+                        .timestamp(LocalDateTime.now())
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .error("Bad Request")
+                        .errorCode("error.bad_request")
+                        .message(ex.getMessage())
+                        .path(request.getServletPath())
+                        .build();
+
+                return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
         }
 
         // Handle all other exceptions

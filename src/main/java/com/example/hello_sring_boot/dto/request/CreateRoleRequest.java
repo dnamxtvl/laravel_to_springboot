@@ -21,5 +21,5 @@ public class CreateRoleRequest {
     @NotEmpty(message = "role.create.permissions_required")
     private List<
             @NotNull(message = "permission.id.null")
-            @Positive(message = "permission.id.positive") Integer> permission_ids;
+            @Positive(message = "permission.id.positive") Integer> permissionIds;
 }
