@@ -13,3 +13,5 @@ databaseChangeLog:
       file: classpath:db/changelog/changeset-007-add-role-id-to-users.sql
   - include:
       file: classpath:db/changelog/changeset-008-seed-permissions-users.sql
+  - include:
+      file: classpath:db/changelog/changeset-009-create-refresh-tokens.sql

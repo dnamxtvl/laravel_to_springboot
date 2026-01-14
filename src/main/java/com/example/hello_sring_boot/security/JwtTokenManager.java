@@ -4,10 +4,12 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
+import com.example.hello_sring_boot.dto.response.LoginResponse;
 import com.example.hello_sring_boot.entity.User;
 import com.example.hello_sring_boot.enums.UserType;
 import org.springframework.stereotype.Component;
 import java.util.Date;
+import java.util.UUID;
 
 @Component
 public class JwtTokenManager {
@@ -17,19 +19,33 @@ public class JwtTokenManager {
         this.jwtProperties = jwtProperties;
     }
 
-    public String generateToken(User user) {
-
-        final String username = user.getEmail();
+    public LoginResponse generateToken(User user) {
+        final String email = user.getEmail();
+        final String userId = user.getId();
         final UserType userRole = UserType.fromValue(user.getTypeUser());
 
         //@formatter:off
-        return JWT.create()
-                .withSubject(username)
+        String accessToken = JWT.create()
+                .withSubject(userId)
+                .withClaim("email", email)
                 .withIssuer(jwtProperties.getIssuer())
                 .withClaim("role", userRole.name())
                 .withIssuedAt(new Date())
                 .withExpiresAt(new Date(System.currentTimeMillis() + jwtProperties.getExpirationMinute() * 60 * 1000))
+                .withJWTId(UUID.randomUUID().toString())
                 .sign(Algorithm.HMAC256(jwtProperties.getSecretKey().getBytes()));
+
+        String refreshToken = JWT.create()
+                .withSubject(userId)
+                .withClaim("email", email)
+                .withIssuer(jwtProperties.getIssuer())
+                .withClaim("role", userRole.name())
+                .withIssuedAt(new Date())
+                .withExpiresAt(new Date(System.currentTimeMillis() + jwtProperties.getExpirationMinuteRefresh() * 60 * 1000))
+                .withJWTId(UUID.randomUUID().toString())
+                .sign(Algorithm.HMAC256(jwtProperties.getSecretKeyRefresh().getBytes()));
+
+        return new LoginResponse(accessToken, refreshToken);
         //@formatter:on
     }
 

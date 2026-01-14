@@ -3,7 +3,9 @@ package com.example.hello_sring_boot.controller;
 import com.example.hello_sring_boot.dto.request.ChangePasswordRequest;
 import com.example.hello_sring_boot.dto.request.ForgotPasswordRequest;
 import com.example.hello_sring_boot.dto.request.LoginRequest;
+import com.example.hello_sring_boot.dto.response.ApiResponse;
 import com.example.hello_sring_boot.dto.response.LoginResponse;
+import com.example.hello_sring_boot.dto.response.UserResponse;
 import com.example.hello_sring_boot.service.AuthService;
 import com.example.hello_sring_boot.service.JwtTokenService;
 import jakarta.validation.Valid;
@@ -25,9 +27,12 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public LoginResponse login(@Valid @RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest loginRequest) {
         log.error("Login request: {}", loginRequest);
-        return jwtTokenService.getLoginResponse(loginRequest);
+        LoginResponse token = jwtTokenService.getLoginResponse(loginRequest);
+        ApiResponse<LoginResponse> response = ApiResponse.<LoginResponse>builder().data(token).build();
+
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/forgot-password")

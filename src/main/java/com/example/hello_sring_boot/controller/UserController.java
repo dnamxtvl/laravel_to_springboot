@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @RestController
@@ -35,6 +37,7 @@ public class UserController {
 
     private final UserService userService;
     private final FileStorageService fileStorageService;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     // Create user
     @PostMapping
@@ -46,8 +49,13 @@ public class UserController {
     // Get user by ID
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<UserResponse>> getUserById(@PathVariable UUID id) {
+        // Test redis
+        redisTemplate.opsForValue().set("test", "test redis ahihi", 60, TimeUnit.MINUTES);
+        String test = (String) redisTemplate.opsForValue().get("test");
+        log.error("Test: {}", test);
         UserResponse response = userService.getUserById(String.valueOf(id));
         ApiResponse<UserResponse> apiResponse = ApiResponse.<UserResponse>builder().data(response).build();
+
         return ResponseEntity.ok(apiResponse);
     }
 
