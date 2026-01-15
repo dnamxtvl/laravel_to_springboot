@@ -122,8 +122,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authentication);
             log.info("Authentication successful. Logged in username : {} ", userWithPerms.getEmail());
-
-            chain.doFilter(request, response);
         } catch (Exception e) {
             throw new UnauthorizedException("UnAuthorized");
         }

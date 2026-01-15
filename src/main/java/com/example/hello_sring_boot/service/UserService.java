@@ -4,6 +4,7 @@ import com.example.hello_sring_boot.dto.request.CreateUserRequest;
 import com.example.hello_sring_boot.dto.request.UpdateUserRequest;
 import com.example.hello_sring_boot.dto.response.UserResponse;
 import com.example.hello_sring_boot.dto.response.UserWithPermsResponse;
+import com.example.hello_sring_boot.dto.user.DetailTodos;
 import com.example.hello_sring_boot.entity.Permission;
 import com.example.hello_sring_boot.entity.User;
 import com.example.hello_sring_boot.mapper.UserMapper;
@@ -25,6 +26,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import com.example.hello_sring_boot.enums.UserType;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 @Slf4j
 @Service
@@ -208,5 +211,16 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
 
         userRefreshTokenRepository.deleteByUserId(userId);
+    }
+
+    public DetailTodos getTodo() {
+        WebClient client = WebClient.builder()
+                .baseUrl("https://jsonplaceholder.typicode.com")
+                .build();
+
+        return client.get()
+                .uri("/todos/1")
+                .retrieve()
+                .bodyToMono(DetailTodos.class).block();
     }
 }

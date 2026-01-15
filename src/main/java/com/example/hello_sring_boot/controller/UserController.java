@@ -6,6 +6,7 @@ import com.example.hello_sring_boot.dto.request.UpdateUserRequest;
 import com.example.hello_sring_boot.dto.response.ApiResponse;
 import com.example.hello_sring_boot.dto.response.PaginatedResponse;
 import com.example.hello_sring_boot.dto.response.UserResponse;
+import com.example.hello_sring_boot.dto.user.DetailTodos;
 import com.example.hello_sring_boot.mapper.PaginationMapper;
 import com.example.hello_sring_boot.service.FileStorageService;
 import com.example.hello_sring_boot.service.UserService;
@@ -182,5 +183,13 @@ public class UserController {
     public ResponseEntity<Void> findBlacklistTokenByEmail(@PathVariable UUID id) {
         userService.disableUser(String.valueOf(id));
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/call-todo")
+    public ResponseEntity<ApiResponse<DetailTodos>> callTodo() {
+        DetailTodos detailTodos = userService.getTodo();
+        ApiResponse<DetailTodos> response = ApiResponse.<DetailTodos>builder().data(detailTodos).build();
+
+        return ResponseEntity.ok(response);
     }
 }
