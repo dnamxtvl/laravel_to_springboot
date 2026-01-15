@@ -49,39 +49,49 @@ public class JwtTokenManager {
         //@formatter:on
     }
 
-    public String getEmailFromToken(String token) {
-
-        final DecodedJWT decodedJWT = getDecodedJWT(token);
+    public String getUserIdFromAccessToken(String token) {
+        final DecodedJWT decodedJWT = getDecodedJWT(token, jwtProperties.getSecretKey());
 
         return decodedJWT.getSubject();
     }
 
-    public boolean validateToken(String token, String authenticatedUsername) {
+    public String getUserIdFromRefreshToken(String token) {
+        final DecodedJWT decodedJWT = getDecodedJWT(token, jwtProperties.getSecretKeyRefresh());
 
-        final String usernameFromToken = getEmailFromToken(token);
-
-        final boolean equalsUsername = usernameFromToken.equals(authenticatedUsername);
-        final boolean tokenExpired = isTokenExpired(token);
-
-        return equalsUsername && !tokenExpired;
+        return decodedJWT.getSubject();
     }
 
-    private boolean isTokenExpired(String token) {
+    public boolean validateAccessToken(String token, String authenticatedUsername) {
+        final String userIdFromToken = getUserIdFromAccessToken(token);
+        final boolean equalsUserId = userIdFromToken.equals(authenticatedUsername);
+        final boolean tokenExpired = isTokenExpired(token, jwtProperties.getSecretKey());
 
-        final Date expirationDateFromToken = getExpirationDateFromToken(token);
+        return equalsUserId && !tokenExpired;
+    }
+
+    public boolean validateRefreshToken(String token, String authenticatedUsername) {
+        final String userIdFromToken = getUserIdFromRefreshToken(token);
+        final boolean equalsUserId = userIdFromToken.equals(authenticatedUsername);
+        final boolean tokenExpired = isTokenExpired(token, jwtProperties.getSecretKeyRefresh());
+
+        return equalsUserId && !tokenExpired;
+    }
+
+    private boolean isTokenExpired(String token, String secret) {
+        final Date expirationDateFromToken = getExpirationDateFromToken(token, secret);
         return expirationDateFromToken.before(new Date());
     }
 
-    private Date getExpirationDateFromToken(String token) {
+    private Date getExpirationDateFromToken(String token, String secret) {
 
-        final DecodedJWT decodedJWT = getDecodedJWT(token);
+        final DecodedJWT decodedJWT = getDecodedJWT(token, secret);
 
         return decodedJWT.getExpiresAt();
     }
 
-    private DecodedJWT getDecodedJWT(String token) {
+    private DecodedJWT getDecodedJWT(String token, String secret) {
 
-        final JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256(jwtProperties.getSecretKey().getBytes())).build();
+        final JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256(secret.getBytes())).build();
 
         return jwtVerifier.verify(token);
     }

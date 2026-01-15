@@ -7,6 +7,7 @@ import com.example.hello_sring_boot.dto.response.UserWithPermsResponse;
 import com.example.hello_sring_boot.entity.Permission;
 import com.example.hello_sring_boot.entity.User;
 import com.example.hello_sring_boot.mapper.UserMapper;
+import com.example.hello_sring_boot.repository.UserRefreshTokenRepository;
 import com.example.hello_sring_boot.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,7 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final UserRefreshTokenRepository userRefreshTokenRepository;
 
     // Create
     public UserResponse createUser(CreateUserRequest request) {
@@ -178,9 +180,9 @@ public class UserService implements UserDetailsService {
                 authorities);
     }
 
-    public UserWithPermsResponse findWithRolesAndPermissionsByEmail(String email) {
-         User user = userRepository.findWithRolesAndPermissionsByEmail(email).
-                orElseThrow(() -> new EntityNotFoundException("User not found with email: " + email));
+    public UserWithPermsResponse findWithRolesAndPermissionsById(String id) {
+        User user = userRepository.findWithRolesAndPermissionsById(id).
+                orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
 
         List<String> permissions = Optional.ofNullable(user.getRole())
                 .map(role -> role.getPermissions().stream()
@@ -188,11 +190,23 @@ public class UserService implements UserDetailsService {
                         .collect(Collectors.toList()))
                 .orElse(Collections.emptyList());
 
-         return UserWithPermsResponse.builder()
-                 .id(user.getId())
-                 .email(user.getEmail())
-                 .password(user.getPassword())
-                 .name(user.getFirstName() + " " + user.getLastName())
-                 .permissions(permissions).build();
+        return UserWithPermsResponse.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .password(user.getPassword())
+                .statusActive(user.getStatusActive())
+                .name(user.getFirstName() + " " + user.getLastName())
+                .permissions(permissions).build();
+    }
+
+    @Transactional
+    public void disableUser(String userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("user.not_found"));
+
+        user.setStatusActive((byte) 0);
+        userRepository.save(user);
+
+        userRefreshTokenRepository.deleteByUserId(userId);
     }
 }

@@ -176,4 +176,11 @@ public class UserController {
     public ResponseEntity<Void> findWithRolesAndPermissionsByEmail(@PathVariable UUID id) {
         return ResponseEntity.ok().build();
     }
+
+    @PreAuthorize("hasAuthority('USER_DELETE')")
+    @PostMapping("/disable/{id}")
+    public ResponseEntity<Void> findBlacklistTokenByEmail(@PathVariable UUID id) {
+        userService.disableUser(String.valueOf(id));
+        return ResponseEntity.ok().build();
+    }
 }

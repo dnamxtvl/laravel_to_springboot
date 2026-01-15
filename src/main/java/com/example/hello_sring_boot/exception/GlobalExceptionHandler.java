@@ -29,6 +29,22 @@ import java.util.Map;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+        // Handle 401
+        @ExceptionHandler(UnauthorizedException.class)
+        public ResponseEntity<ErrorResponse> handleUnauthorizedException(UnauthorizedException ex, HttpServletRequest request) {
+                log.error("BaseException: {}", ex.getMessage(), ex);
+
+                ErrorResponse errorResponse = ErrorResponse.builder()
+                        .timestamp(LocalDateTime.now())
+                        .status(ex.getStatus().value())
+                        .error(ex.getStatus().getReasonPhrase())
+                        .errorCode(ex.getErrorCode())
+                        .message(ex.getMessage())
+                        .path(request.getServletPath())
+                        .build();
+
+                return new ResponseEntity<>(errorResponse, ex.getStatus());
+        }
 
         // Handle custom BaseException
         @ExceptionHandler(BaseException.class)

@@ -1,10 +1,17 @@
 package com.example.hello_sring_boot.service;
 
+import com.example.hello_sring_boot.dto.authenication.RefreshTokenDTO;
+import com.example.hello_sring_boot.dto.response.LoginResponse;
 import com.example.hello_sring_boot.entity.ForgotPassword;
 import com.example.hello_sring_boot.entity.User;
+import com.example.hello_sring_boot.entity.UserRefreshToken;
 import com.example.hello_sring_boot.enums.OtpStatus;
 import com.example.hello_sring_boot.repository.ForgotPasswordRepository;
+import com.example.hello_sring_boot.repository.UserRefreshTokenRepository;
 import com.example.hello_sring_boot.repository.UserRepository;
+import com.example.hello_sring_boot.security.JwtProperties;
+import com.example.hello_sring_boot.security.JwtTokenManager;
+import com.example.hello_sring_boot.utils.Helper;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.Random;
 
 @Service
@@ -23,6 +31,10 @@ public class AuthService {
     private final UserRepository userRepository;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
+    private final JwtTokenManager jwtTokenManager;
+    private final UserRefreshTokenRepository userRefreshTokenRepository;
+    private final Helper helper;
+    private final JwtProperties jwtProperties;
 
     @Autowired
     private JobScheduler jobScheduler;
@@ -74,5 +86,30 @@ public class AuthService {
 
         user.setPassword(passwordEncoder.encode(password));
         userRepository.save(user);
+    }
+
+    @Transactional
+    public LoginResponse refreshToken(String token, String userId) {
+        final User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("user.not_found"));
+        LoginResponse loginResponse = jwtTokenManager.generateToken(user);
+
+        userRefreshTokenRepository.deleteByToken(token);
+        UserRefreshToken userRefreshToken = UserRefreshToken.builder().userId(user.getId())
+                .token(helper.encryptThisString(loginResponse.getRefreshToken()))
+                .expiredAt(LocalDateTime.now().plusMinutes(jwtProperties.getExpirationMinuteRefresh()))
+                .build();
+
+        userRefreshTokenRepository.save(userRefreshToken);
+
+        return loginResponse;
+    }
+
+    public Optional<RefreshTokenDTO> findByToken(String token) {
+        Optional<UserRefreshToken> refreshToken = userRefreshTokenRepository.findByToken(token);
+        return refreshToken.map(userRefreshToken -> RefreshTokenDTO.builder()
+                .token(userRefreshToken.getToken())
+                .userId(userRefreshToken.getUserId())
+                .expiredAt(userRefreshToken.getExpiredAt())
+                .build());
     }
 }

@@ -94,7 +94,7 @@ public class User {
     private Byte status = 1;
 
     @Column(name = "status_active", columnDefinition = "TINYINT DEFAULT 0 COMMENT 'Trạng thái hoạt động'")
-    private Byte statusActive = 0;
+    private Byte statusActive = 1;
 
     @Column(name = "type_user", nullable = false, columnDefinition = "TINYINT COMMENT 'học sinh, phụ huynh, nhà trường, admin'")
     private Byte typeUser;

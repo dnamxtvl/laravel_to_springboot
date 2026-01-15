@@ -14,6 +14,7 @@ public class UserWithPermsResponse {
     private String id;
     private String email;
     private String password;
+    private Byte statusActive;
     private String name;
     private List<String> permissions;
 }

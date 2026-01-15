@@ -9,6 +9,7 @@ import com.example.hello_sring_boot.repository.UserRepository;
 import com.example.hello_sring_boot.security.JwtProperties;
 import com.example.hello_sring_boot.security.JwtTokenManager;
 import com.example.hello_sring_boot.utils.Helper;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +18,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -38,7 +38,10 @@ public class JwtTokenService {
                 email, password);
         authenticationManager.authenticate(usernamePasswordAuthenticationToken);
 
-        final User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+        final User user = userRepository.findByEmail(email).orElseThrow(() -> new EntityNotFoundException("user.not_found"));
+        if (user.getStatusActive() == 0) {
+            throw new EntityNotFoundException("user.not_active");
+        }
         LoginResponse loginResponse = jwtTokenManager.generateToken(user);
 
         UserRefreshToken userRefreshToken = UserRefreshToken.builder().userId(user.getId())

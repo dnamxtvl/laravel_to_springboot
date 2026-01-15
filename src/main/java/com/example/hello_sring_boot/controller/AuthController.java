@@ -1,17 +1,20 @@
 package com.example.hello_sring_boot.controller;
 
+import com.example.hello_sring_boot.dto.authenication.RefreshTokenDTO;
 import com.example.hello_sring_boot.dto.request.ChangePasswordRequest;
 import com.example.hello_sring_boot.dto.request.ForgotPasswordRequest;
 import com.example.hello_sring_boot.dto.request.LoginRequest;
 import com.example.hello_sring_boot.dto.response.ApiResponse;
 import com.example.hello_sring_boot.dto.response.LoginResponse;
 import com.example.hello_sring_boot.dto.response.UserResponse;
+import com.example.hello_sring_boot.entity.UserRefreshToken;
 import com.example.hello_sring_boot.service.AuthService;
 import com.example.hello_sring_boot.service.JwtTokenService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -45,5 +48,14 @@ public class AuthController {
     public ResponseEntity<Void> changePassword(@Valid @RequestBody ChangePasswordRequest body, @PathVariable String token) throws BadRequestException {
         authService.changePassword(token, body.getPassword());
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<ApiResponse<LoginResponse>> refreshToken(Authentication authentication) {
+        RefreshTokenDTO tokenDTO = (RefreshTokenDTO) authentication.getDetails();
+        LoginResponse token = authService.refreshToken(tokenDTO.getToken(), tokenDTO.getUserId());
+        ApiResponse<LoginResponse> response = ApiResponse.<LoginResponse>builder().data(token).build();
+
+        return ResponseEntity.ok(response);
     }
 }
