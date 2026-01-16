@@ -5,6 +5,8 @@ import org.jobrunr.jobs.annotations.Recurring;
 import org.springframework.stereotype.Component;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDateTime;
+
 @Slf4j
 @Component
 public class MySampleJobCommand {
@@ -13,6 +15,7 @@ public class MySampleJobCommand {
     @Job(name = "Sync data from external API")
     public void syncData() {
         log.error("Đang đồng bộ dữ liệu...");
+        log.error("local date{}", LocalDateTime.now());
         log.error("Đang đồng bộ dữ liệu done...");
     }
 }

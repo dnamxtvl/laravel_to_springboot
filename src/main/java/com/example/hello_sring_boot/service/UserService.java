@@ -223,4 +223,10 @@ public class UserService implements UserDetailsService {
                 .retrieve()
                 .bodyToMono(DetailTodos.class).block();
     }
+
+    @Transactional
+    public int revokeExpiredRefreshToken() {
+        log.error(LocalDateTime.now().toString());
+        return userRefreshTokenRepository.deleteByExpiredAtBefore(LocalDateTime.now());
+    }
 }

@@ -3,8 +3,10 @@ package com.example.hello_sring_boot.repository;
 import com.example.hello_sring_boot.entity.UserRefreshToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Repository
@@ -16,4 +18,7 @@ public interface UserRefreshTokenRepository extends JpaRepository<UserRefreshTok
     void deleteByToken(String token);
 
     void deleteByUserId(String userId);
+
+    @Modifying
+    int deleteByExpiredAtBefore(LocalDateTime now);
 }
