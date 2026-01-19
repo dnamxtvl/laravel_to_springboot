@@ -1,6 +1,7 @@
 package com.example.hello_sring_boot.exception;
 
 import com.example.hello_sring_boot.dto.error.ErrorResponse;
+import jakarta.annotation.Nonnull;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
@@ -31,7 +32,7 @@ import java.util.Map;
 public class GlobalExceptionHandler {
         // Handle 401
         @ExceptionHandler(UnauthorizedException.class)
-        public ResponseEntity<ErrorResponse> handleUnauthorizedException(UnauthorizedException ex, HttpServletRequest request) {
+        public ResponseEntity<ErrorResponse> handleUnauthorizedException(UnauthorizedException ex, @Nonnull HttpServletRequest request) {
                 log.error("BaseException: {}", ex.getMessage(), ex);
 
                 ErrorResponse errorResponse = ErrorResponse.builder()
@@ -48,7 +49,7 @@ public class GlobalExceptionHandler {
 
         // Handle custom BaseException
         @ExceptionHandler(BaseException.class)
-        public ResponseEntity<ErrorResponse> handleBaseException(BaseException ex, HttpServletRequest request) {
+        public ResponseEntity<ErrorResponse> handleBaseException(BaseException ex, @Nonnull HttpServletRequest request) {
                 log.error("BaseException: {}", ex.getMessage(), ex);
 
                 ErrorResponse errorResponse = ErrorResponse.builder()
@@ -66,7 +67,7 @@ public class GlobalExceptionHandler {
         // Handle validation errors
         @ExceptionHandler(MethodArgumentNotValidException.class)
         public ResponseEntity<ErrorResponse> handleValidationExceptions(
-                MethodArgumentNotValidException ex, HttpServletRequest request) {
+                @Nonnull MethodArgumentNotValidException ex, @Nonnull HttpServletRequest request) {
 
                 Map<String, String> errors = new HashMap<>();
                 ex.getBindingResult().getAllErrors().forEach((error) -> {
@@ -93,7 +94,7 @@ public class GlobalExceptionHandler {
         // Handle bad credentials (login failed)
         @ExceptionHandler(BadCredentialsException.class)
         public ResponseEntity<ErrorResponse> handleBadCredentialsException(
-                        BadCredentialsException ex, HttpServletRequest request) {
+                @Nonnull BadCredentialsException ex, @Nonnull HttpServletRequest request) {
 
                 log.error("BadCredentialsException: {}", ex.getStackTrace());
                 log.error("BadCredentialsException: {}", ex.getMessage());
@@ -113,7 +114,7 @@ public class GlobalExceptionHandler {
         // Handle access denied (403)
         @ExceptionHandler(AccessDeniedException.class)
         public ResponseEntity<ErrorResponse> handleAccessDeniedException(
-                AccessDeniedException ex, HttpServletRequest request) {
+                @Nonnull AccessDeniedException ex, @Nonnull HttpServletRequest request) {
 
                 log.error("AccessDeniedException: {}", ex.getMessage());
 
@@ -132,7 +133,7 @@ public class GlobalExceptionHandler {
         // Handle missing request parameters
         @ExceptionHandler(MissingServletRequestParameterException.class)
         public ResponseEntity<ErrorResponse> handleMissingParams(
-                        MissingServletRequestParameterException ex, HttpServletRequest request) {
+                @Nonnull MissingServletRequestParameterException ex, @Nonnull HttpServletRequest request) {
 
                 String error = ex.getParameterName() + " parameter is missing";
                 log.error("MissingServletRequestParameterException: {}", error);
@@ -152,7 +153,7 @@ public class GlobalExceptionHandler {
         // Handle invalid JSON format
         @ExceptionHandler(HttpMessageNotReadableException.class)
         public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(
-                        HttpMessageNotReadableException ex, HttpServletRequest request) {
+                @Nonnull HttpMessageNotReadableException ex, @Nonnull HttpServletRequest request) {
 
                 log.error("HttpMessageNotReadableException: {}", ex.getMessage());
 
@@ -171,7 +172,7 @@ public class GlobalExceptionHandler {
         // Handle type mismatch in parameters
         @ExceptionHandler(MethodArgumentTypeMismatchException.class)
         public ResponseEntity<ErrorResponse> handleTypeMismatch(
-                MethodArgumentTypeMismatchException ex, HttpServletRequest request) {
+                @Nonnull MethodArgumentTypeMismatchException ex, @Nonnull HttpServletRequest request) {
 
                 String error = String.format("Parameter '%s' should be of type '%s'",
                         ex.getName(),
@@ -194,7 +195,7 @@ public class GlobalExceptionHandler {
         // Handle 404 - Not Found
         @ExceptionHandler(NoHandlerFoundException.class)
         public ResponseEntity<ErrorResponse> handleNoHandlerFoundException(
-                        NoHandlerFoundException ex, HttpServletRequest request) {
+                @Nonnull NoHandlerFoundException ex, @Nonnull HttpServletRequest request) {
 
                 log.error("NoHandlerFoundException: {} {}", ex.getHttpMethod(), ex.getRequestURL());
 
@@ -212,8 +213,8 @@ public class GlobalExceptionHandler {
 
         // Handle rate limit exception
         @ExceptionHandler(RateLimitException.class)
-        public ResponseEntity<ErrorResponse> handleRateLimitException(RateLimitException ex,
-                        HttpServletRequest request) {
+        public ResponseEntity<ErrorResponse> handleRateLimitException(@Nonnull RateLimitException ex,
+                                                                      @Nonnull HttpServletRequest request) {
                 log.error("RateLimitException: {}", ex.getMessage());
 
                 ErrorResponse errorResponse = ErrorResponse.builder()
@@ -232,8 +233,8 @@ public class GlobalExceptionHandler {
 
         // Handle EntityNotFoundException - 404
         @ExceptionHandler(EntityNotFoundException.class)
-        public ResponseEntity<ErrorResponse> handleEntityNotFoundException(EntityNotFoundException ex,
-                HttpServletRequest request) {
+        public ResponseEntity<ErrorResponse> handleEntityNotFoundException(@Nonnull EntityNotFoundException ex,
+                                                                           @Nonnull HttpServletRequest request) {
                 ErrorResponse errorResponse = ErrorResponse.builder()
                         .timestamp(LocalDateTime.now())
                         .status(HttpStatus.NOT_FOUND.value())
@@ -248,8 +249,8 @@ public class GlobalExceptionHandler {
 
         // Handle HttpMediaTypeNotSupportedException - status 415
         @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
-        public ResponseEntity<ErrorResponse> MediaTypeNotSupportedException(HttpMediaTypeNotSupportedException ex,
-                HttpServletRequest request) {
+        public ResponseEntity<ErrorResponse> MediaTypeNotSupportedException(@Nonnull HttpMediaTypeNotSupportedException ex,
+                                                                            @Nonnull HttpServletRequest request) {
                 ErrorResponse errorResponse = ErrorResponse.builder()
                         .timestamp(LocalDateTime.now())
                         .status(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value())
@@ -263,8 +264,8 @@ public class GlobalExceptionHandler {
         }
 
         @ExceptionHandler(MaxUploadSizeExceededException.class)
-        public ResponseEntity<ErrorResponse> maxUploadSizeExceededException(MaxUploadSizeExceededException ex,
-                        HttpServletRequest request) {
+        public ResponseEntity<ErrorResponse> maxUploadSizeExceededException(@Nonnull MaxUploadSizeExceededException ex,
+                                                                            @Nonnull HttpServletRequest request) {
                 ErrorResponse errorResponse = ErrorResponse.builder()
                         .timestamp(LocalDateTime.now())
                         .status(HttpStatus.UNPROCESSABLE_ENTITY.value())
@@ -279,7 +280,7 @@ public class GlobalExceptionHandler {
 
         @ExceptionHandler(ConstraintViolationException.class)
         public ResponseEntity<ErrorResponse> handleConstraintViolationException(
-                ConstraintViolationException ex, HttpServletRequest request) {
+                @Nonnull ConstraintViolationException ex, @Nonnull HttpServletRequest request) {
                 String errorMessage = ex.getConstraintViolations().stream()
                         .map(ConstraintViolation::getMessage)
                         .findFirst()
@@ -299,7 +300,7 @@ public class GlobalExceptionHandler {
 
         // Handle BadRequestException
         @ExceptionHandler(BadRequestException.class)
-        public ResponseEntity<ErrorResponse> handleBadRequestException(BadRequestException ex, HttpServletRequest request) {
+        public ResponseEntity<ErrorResponse> handleBadRequestException(@Nonnull BadRequestException ex, @Nonnull HttpServletRequest request) {
                 ErrorResponse errorResponse = ErrorResponse.builder()
                         .timestamp(LocalDateTime.now())
                         .status(HttpStatus.BAD_REQUEST.value())
@@ -314,7 +315,7 @@ public class GlobalExceptionHandler {
 
         // Handle all other exceptions
         @ExceptionHandler(Exception.class)
-        public ResponseEntity<ErrorResponse> handleAllExceptions(Exception ex, HttpServletRequest request) {
+        public ResponseEntity<ErrorResponse> handleAllExceptions(Exception ex, @Nonnull HttpServletRequest request) {
                 log.error("Unhandled exception: ", ex);
 
                 ErrorResponse errorResponse = ErrorResponse.builder()
