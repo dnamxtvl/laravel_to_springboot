@@ -32,7 +32,7 @@ public class JwtTokenManager {
                 .withClaim("role", userRole.name())
                 .withIssuedAt(new Date())
                 .withExpiresAt(new Date(System.currentTimeMillis() + jwtProperties.getExpirationMinute() * 60 * 1000))
-                .withJWTId(UUID.randomUUID().toString())
+                .withJWTId(UUID.randomUUID() + new Date(System.currentTimeMillis()).toString())
                 .sign(Algorithm.HMAC256(jwtProperties.getSecretKey().getBytes()));
 
         String refreshToken = JWT.create()
@@ -42,7 +42,7 @@ public class JwtTokenManager {
                 .withClaim("role", userRole.name())
                 .withIssuedAt(new Date())
                 .withExpiresAt(new Date(System.currentTimeMillis() + jwtProperties.getExpirationMinuteRefresh() * 60 * 1000))
-                .withJWTId(UUID.randomUUID().toString())
+                .withJWTId(UUID.randomUUID() + new Date(System.currentTimeMillis()).toString())
                 .sign(Algorithm.HMAC256(jwtProperties.getSecretKeyRefresh().getBytes()));
 
         return new LoginResponse(accessToken, refreshToken);

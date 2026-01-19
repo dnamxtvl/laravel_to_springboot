@@ -53,7 +53,6 @@ public class RefreshTokenJwtFilter extends OncePerRequestFilter {
         log.error("Processing request: {} {}", request.getMethod(), request.getRequestURI());
 
         try {
-            final String header = request.getHeader(JwtConstants.HEADER_STRING);
             // Debug logging (optional, but helpful for user)
             log.info("Processing request: {} {}", request.getMethod(), request.getRequestURI());
 
