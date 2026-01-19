@@ -6,10 +6,11 @@ import com.example.hello_sring_boot.dto.request.ForgotPasswordRequest;
 import com.example.hello_sring_boot.dto.request.LoginRequest;
 import com.example.hello_sring_boot.dto.response.ApiResponse;
 import com.example.hello_sring_boot.dto.response.LoginResponse;
-import com.example.hello_sring_boot.dto.response.UserResponse;
-import com.example.hello_sring_boot.entity.UserRefreshToken;
+import com.example.hello_sring_boot.security.JwtProperties;
 import com.example.hello_sring_boot.service.AuthService;
 import com.example.hello_sring_boot.service.JwtTokenService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
@@ -23,19 +24,30 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     private final JwtTokenService jwtTokenService;
     private final AuthService authService;
+    private final JwtProperties jwtProperties;
 
-    public AuthController(JwtTokenService jwtTokenService, AuthService authService) {
+    public AuthController(JwtTokenService jwtTokenService, AuthService authService, JwtProperties jwtProperties) {
         this.jwtTokenService = jwtTokenService;
         this.authService = authService;
+        this.jwtProperties = jwtProperties;
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         log.error("Login request: {}", loginRequest);
         LoginResponse token = jwtTokenService.getLoginResponse(loginRequest);
-        ApiResponse<LoginResponse> response = ApiResponse.<LoginResponse>builder().data(token).build();
+        Cookie cookie = new Cookie("refreshToken", token.getRefreshToken());
+        cookie.setMaxAge((int) (jwtProperties.getExpirationMinuteRefresh() * 60));
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
 
-        return ResponseEntity.ok(response);
+        boolean isProduction = "production".equals(System.getenv("ENVIRONMENT"));
+        cookie.setSecure(isProduction);
+        response.addCookie(cookie);
+
+        ApiResponse<LoginResponse> result = ApiResponse.<LoginResponse>builder().data(token).build();
+
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping("/forgot-password")
@@ -51,11 +63,20 @@ public class AuthController {
     }
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<ApiResponse<LoginResponse>> refreshToken(Authentication authentication) {
+    @ResponseBody
+    public ResponseEntity<ApiResponse<LoginResponse>> refreshToken(Authentication authentication, HttpServletResponse response) {
         RefreshTokenDTO tokenDTO = (RefreshTokenDTO) authentication.getDetails();
         LoginResponse token = authService.refreshToken(tokenDTO.getToken(), tokenDTO.getUserId());
-        ApiResponse<LoginResponse> response = ApiResponse.<LoginResponse>builder().data(token).build();
+        Cookie cookie = new Cookie("refreshToken", token.getRefreshToken());
+        cookie.setMaxAge((int) (jwtProperties.getExpirationMinuteRefresh() * 60));
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
 
-        return ResponseEntity.ok(response);
+        boolean isProduction = "production".equals(System.getenv("ENVIRONMENT"));
+        cookie.setSecure(isProduction);
+        response.addCookie(cookie);
+        ApiResponse<LoginResponse> result = ApiResponse.<LoginResponse>builder().data(token).build();
+
+        return ResponseEntity.ok(result);
     }
 }

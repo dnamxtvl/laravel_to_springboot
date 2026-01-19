@@ -1,6 +1,7 @@
 package com.example.hello_sring_boot.controller;
 
 import com.example.hello_sring_boot.anotation.FileValidator;
+import com.example.hello_sring_boot.dto.csv.UserCsvRepresentation;
 import com.example.hello_sring_boot.dto.request.CreateUserRequest;
 import com.example.hello_sring_boot.dto.request.UpdateUserRequest;
 import com.example.hello_sring_boot.dto.response.ApiResponse;
@@ -8,6 +9,7 @@ import com.example.hello_sring_boot.dto.response.PaginatedResponse;
 import com.example.hello_sring_boot.dto.response.UserResponse;
 import com.example.hello_sring_boot.dto.user.DetailTodos;
 import com.example.hello_sring_boot.mapper.PaginationMapper;
+import com.example.hello_sring_boot.service.CsvService;
 import com.example.hello_sring_boot.service.FileStorageService;
 import com.example.hello_sring_boot.service.UserService;
 import jakarta.validation.Valid;
@@ -39,6 +41,7 @@ public class UserController {
     private final UserService userService;
     private final FileStorageService fileStorageService;
     private final RedisTemplate<String, Object> redisTemplate;
+    private final CsvService csvService;
 
     // Create user
     @PostMapping
@@ -191,5 +194,20 @@ public class UserController {
         ApiResponse<DetailTodos> response = ApiResponse.<DetailTodos>builder().data(detailTodos).build();
 
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/upload-csv")
+    public ResponseEntity<List<UserCsvRepresentation>> uploadCsvFile(
+        @FileValidator(maxSize = 1024 * 1024, allowedTypes = { "csv" }) @RequestParam("file") MultipartFile file
+    ) {
+        if (file.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+        try {
+            List<UserCsvRepresentation> users = csvService.parseCsv(file);
+            return ResponseEntity.ok(users);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
     }
 }

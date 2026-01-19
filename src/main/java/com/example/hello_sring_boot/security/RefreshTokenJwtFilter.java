@@ -7,6 +7,7 @@ import com.example.hello_sring_boot.utils.Helper;
 import com.example.hello_sring_boot.utils.JwtConstants;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
@@ -55,28 +57,30 @@ public class RefreshTokenJwtFilter extends OncePerRequestFilter {
             // Debug logging (optional, but helpful for user)
             log.info("Processing request: {} {}", request.getMethod(), request.getRequestURI());
 
-            String userId = null;
+            String userId;
+            Cookie[] cookies = request.getCookies();
             String refreshToken = null;
-            if (Objects.nonNull(header) && header.startsWith(JwtConstants.TOKEN_PREFIX)) {
-                refreshToken = header.replace(JwtConstants.TOKEN_PREFIX, Strings.EMPTY);
 
-                try {
-                    userId = jwtTokenManager.getUserIdFromRefreshToken(refreshToken);
-                    log.error("User ID: {}", userId);
-
-                    final boolean validToken = jwtTokenManager.validateRefreshToken(refreshToken, userId);
-                    if (!validToken) {
-                        log.error("Invalid or expired refresh token");
-                        throw new UnauthorizedException("UNAUTHORIZED");
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if ("refreshToken".equals(cookie.getName())) {
+                        refreshToken = cookie.getValue();
+                        break;
                     }
-                } catch (Exception e) {
-                    log.error("Authentication Exception : {}", e.getMessage());
-                    throw new UnauthorizedException("UNAUTHORIZED");
                 }
             }
 
             if (refreshToken == null) {
                 log.error("Invalid or refresh token is null");
+                throw new UnauthorizedException("UNAUTHORIZED");
+            }
+
+            userId = jwtTokenManager.getUserIdFromRefreshToken(refreshToken);
+            log.error("User ID: {}", userId);
+
+            final boolean validToken = jwtTokenManager.validateRefreshToken(refreshToken, userId);
+            if (!validToken) {
+                log.error("Invalid or expired refresh token");
                 throw new UnauthorizedException("UNAUTHORIZED");
             }
 
