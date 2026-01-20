@@ -1,5 +1,6 @@
 package com.example.hello_sring_boot.controller;
 
+import com.example.hello_sring_boot.HelloSringBootApplication;
 import com.example.hello_sring_boot.anotation.FileValidator;
 import com.example.hello_sring_boot.dto.csv.UserCsvRepresentation;
 import com.example.hello_sring_boot.dto.request.CreateUserRequest;
@@ -9,12 +10,15 @@ import com.example.hello_sring_boot.dto.response.PaginatedResponse;
 import com.example.hello_sring_boot.dto.response.UserResponse;
 import com.example.hello_sring_boot.dto.user.DetailTodos;
 import com.example.hello_sring_boot.mapper.PaginationMapper;
+import com.example.hello_sring_boot.rabbitmq.producer.RabbitMQProducer;
 import com.example.hello_sring_boot.service.CsvService;
 import com.example.hello_sring_boot.service.FileStorageService;
 import com.example.hello_sring_boot.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -42,6 +46,7 @@ public class UserController {
     private final FileStorageService fileStorageService;
     private final RedisTemplate<String, Object> redisTemplate;
     private final CsvService csvService;
+    private final RabbitMQProducer messageProducer;
 
     // Create user
     @PostMapping
@@ -209,5 +214,11 @@ public class UserController {
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
+    }
+
+    @GetMapping("/trigger-msqueue")
+    public ResponseEntity<Void> triggerMsQueue() {
+        messageProducer.sendMessage("Hello Techmaster");
+        return ResponseEntity.ok().build();
     }
 }
