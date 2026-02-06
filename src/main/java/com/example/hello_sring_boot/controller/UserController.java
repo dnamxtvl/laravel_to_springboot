@@ -1,6 +1,5 @@
 package com.example.hello_sring_boot.controller;
 
-import com.example.hello_sring_boot.HelloSringBootApplication;
 import com.example.hello_sring_boot.anotation.FileValidator;
 import com.example.hello_sring_boot.dto.csv.UserCsvRepresentation;
 import com.example.hello_sring_boot.dto.request.CreateUserRequest;
@@ -9,6 +8,7 @@ import com.example.hello_sring_boot.dto.response.ApiResponse;
 import com.example.hello_sring_boot.dto.response.PaginatedResponse;
 import com.example.hello_sring_boot.dto.response.UserResponse;
 import com.example.hello_sring_boot.dto.user.DetailTodos;
+import com.example.hello_sring_boot.dto.ws.MessageWSDTO;
 import com.example.hello_sring_boot.mapper.PaginationMapper;
 import com.example.hello_sring_boot.rabbitmq.producer.RabbitMQProducer;
 import com.example.hello_sring_boot.service.CsvService;
@@ -17,8 +17,6 @@ import com.example.hello_sring_boot.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.SpringApplication;
-import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -26,6 +24,10 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -47,6 +49,7 @@ public class UserController {
     private final RedisTemplate<String, Object> redisTemplate;
     private final CsvService csvService;
     private final RabbitMQProducer messageProducer;
+    private final SimpMessagingTemplate messagingTemplate;
 
     // Create user
     @PostMapping
@@ -219,6 +222,15 @@ public class UserController {
     @GetMapping("/trigger-msqueue")
     public ResponseEntity<Void> triggerMsQueue() {
         messageProducer.sendMessage("Hello Techmaster");
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/send-trigger")
+    public ResponseEntity<Void> triggerMessage() {
+        MessageWSDTO message = MessageWSDTO.builder().content("Hello world from backend").build();
+        // Lưu ý: Không cần prefix /app vì đây là bắn trực tiếp tới Broker
+        messagingTemplate.convertAndSend("/chatroom/public", message);
+
         return ResponseEntity.ok().build();
     }
 }

@@ -43,7 +43,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/myapp?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       SPRING_DATASOURCE_USERNAME: myuser
       SPRING_DATASOURCE_PASSWORD: mypass
-      SPRING_LIQUIBASE_ENABLED: "true"
+      SPRING_LIQUIBASE_ENABLED: "true"      
       SPRING_DEVTOOLS_RESTART_ENABLED: "true" # Bật tính năng hot reload
     volumes:
       - ./src/main/resources:/app/resources  # Mount thư mục Liquibase
